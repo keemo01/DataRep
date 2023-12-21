@@ -40,7 +40,7 @@ class App extends Component {
             <Route path="/" component={MainPage} exact />
             <Route path="/readProducts" component={ReadProducts} />
             <Route path="/createProducts" component={CreateProducts} />
-            <Route path="/edit/:id" component={EditProducts} />
+            <Route path="/editProduct/:id" component={EditProducts} />
             
 
           </Switch>

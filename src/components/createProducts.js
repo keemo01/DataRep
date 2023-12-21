@@ -11,37 +11,40 @@ class CreateProduct extends Component {
         this.state = {
             Name: '',
             Qty: '',
-            Image: ''
+            Image: '',
+            Comment: '' // New property for comment
         };
     }
 
-    handleSubmit(event) {
-        event.preventDefault(); // Prevents the default form submission action from occurring.
 
-        // Creating a new product object with data from the state.
+    handleSubmit(event) {
+        event.preventDefault();
+    
         const newProduct = {
             name: this.state.Name,
             qty: this.state.Qty,
-            image: this.state.Image
+            image: this.state.Image,
+            comment: this.state.Comment // Include the comment in the newProduct object
         };
-
+    
         axios.post('http://localhost:4000/api/products', newProduct)
             .then((res) => {
-                console.log(res); // Logging the response from the server to the console.
-                // If needed, add further actions upon successful API call.
+                console.log(res);
+                // Further actions upon successful API call
             })
             .catch((err) => {
-                console.log(err); // Logging any errors to the console.
-                // Handle errors gracefully or display them to the user.
+                console.log(err);
+                // Handle errors gracefully or display them to the user
             });
-
-        // Resetting the state to empty values for another product after submission.
+    
         this.setState({
             Name: '',
             Qty: '',
-            Image: ''
+            Image: '',
+            Comment: '' // Reset comment after submission
         });
     }
+    
 
     onChangeProductName(event) {
         this.setState({
@@ -59,6 +62,10 @@ class CreateProduct extends Component {
         this.setState({
             Image: event.target.value // Updates the 'Image' value in the state.
         });
+    }
+
+    onChangeProductComment(event) {
+        this.setState({ Comment: event.target.value }); // Update the Comment state
     }
 
     render() {
@@ -103,6 +110,18 @@ class CreateProduct extends Component {
                                 />
                             </div>
                         </div>
+                        <div className="row form-group">
+                    <div className="col-3">
+                        <label>Add Comment: </label>
+                    </div>
+                    <div className="col-9">
+                        <textarea
+                            className="form-control"
+                            value={this.state.Comment}
+                            onChange={this.onChangeProductComment.bind(this)}
+                        />
+                    </div>
+                </div>
                         <div className="submit">
                             <input type="submit" value="Add Product" className="btn btn-primary" />
                         </div>

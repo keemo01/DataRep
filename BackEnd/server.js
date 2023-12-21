@@ -29,9 +29,9 @@ const Schema = mongoose.Schema;
 var productSchema = new Schema({
     name: String,
     qty: String,
-    image: String
+    image: String,
+    comment: String // New field for comment
 });
-
 // create model for database for interaction
 var ProductModel = mongoose.model("product", productSchema)
 
@@ -62,17 +62,19 @@ app.get('/api/products/:id', (req, res) => {
 
 // post request to create new product
 app.post('/api/products', (req, res) => {
-
-    // interact to create
     ProductModel.create({
         name: req.body.name,
         qty: req.body.qty,
-        image: req.body.image
+        image: req.body.image,
+        comment: req.body.comment // Save the received comment
     })
-
-    // server to client to prevent duplicate creation
-    res.send('Product Added');
-})
+    .then(() => {
+        res.send('Product Added'); // Send success message
+    })
+    .catch((err) => {
+        res.status(500).send(err); // Send error response if any
+    });
+});
 
 // update product with specific id
 app.put('/api/products/:id', (req, res) => {
