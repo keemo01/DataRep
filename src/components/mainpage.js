@@ -9,7 +9,7 @@ class MainPage extends Component {
                     <h2>The time is {new Date().toLocaleTimeString()}.</h2>
                 </div>
                 <footer className="footer" style={{ position: "absolute", bottom: "0", width: "100%", backgroundColor: "black", color: "white", textAlign: "center", padding: "10px 0" }}>
-                <h4>Al Jabarah</h4>
+                    <h4>Al Jabarah</h4>
                     <p>123 Store Street, City</p>
                     <p>Contact: 0899-230-164</p>
                     <p>Email: info@aljabarahstore.com</p>

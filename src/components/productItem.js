@@ -49,4 +49,4 @@ class ProductItem extends Component {
     }
 }
 
-export default ProductItem;
+export default ProductItem; // export

@@ -138,4 +138,4 @@ class EditProduct extends Component {
     }
 }
 
-export default EditProduct;
+export default EditProduct; // export

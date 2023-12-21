@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import './App.css';
 import MainPage from './components/mainpage'
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -11,43 +11,67 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
+  Redirect
 } from "react-router-dom";
 import EditProducts from './components/editProducts';
+import Register from './components/auth/Register';
+import Login from './components/auth/Login';
 
+const App = () => {
+    const [authenticated, setAuthenticated] = useState(false);
 
-class App extends Component {
-  // on render
-  render() {
-    return (
-      <Router>
-        <div className="App">
-          {/* create navbar using bootstrap */}
-          {/* Code block taken from: https://react-bootstrap.github.io/components/navbar/ */}
-          <Navbar bg="dark" variant="dark">
-            <Container>
-              <Navbar.Brand href="/">Al Jabarah</Navbar.Brand>
-              <Nav>
-                <Nav.Link href="/">Home</Nav.Link>
-                <Nav.Link href="/readProducts">Product List</Nav.Link>
-                <Nav.Link href="/createProducts">Add Product</Nav.Link>
-          
+    // Check if user is authenticated
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            setAuthenticated(true);
+        } else {
+            setAuthenticated(false);
+        }
+    }, []);
 
-              </Nav>
-            </Container>
-          </Navbar>
-          <Switch>
-            {/* set route to different content */}
-            <Route path="/" component={MainPage} exact />
-            <Route path="/readProducts" component={ReadProducts} />
-            <Route path="/createProducts" component={CreateProducts} />
-            <Route path="/editProduct/:id" component={EditProducts} />
-            
+    const handleLogout = () => {
+        // Clear authentication state and remove token from local storage
+        setAuthenticated(false);
+        localStorage.removeItem('token');
+    };
 
-          </Switch>
-        </div>
-      </Router>
-    );
-  }
+  const PrivateRoute = ({ component: Component, ...rest }) => (
+    <Route {...rest} render={(props) => (
+      authenticated === true
+        ? <Component {...props} />
+        : <Redirect to='/login' />
+    )} />
+  );
+
+  return (
+    <Router>
+    <div className="App">
+        <Navbar bg="dark" variant="dark">
+          <Container>
+            <Navbar.Brand href="/">Al Jabarah</Navbar.Brand>
+            <Nav>
+              <Nav.Link href="/">Home</Nav.Link>
+              {authenticated && <Nav.Link href="/readProducts">Product List</Nav.Link>}
+              {authenticated && <Nav.Link href="/createProducts">Add Product</Nav.Link>}
+              {authenticated && <Nav.Link onClick={handleLogout}>Logout</Nav.Link>}
+
+            </Nav>
+          </Container>
+        </Navbar>
+        <Switch>
+        <Route path="/login">
+                <Login setAuthenticated={setAuthenticated} />
+        </Route>
+          <Route path="/register" component={Register} />
+          <PrivateRoute path="/" component={MainPage} exact />
+          <PrivateRoute path="/readProducts" component={ReadProducts} />
+          <PrivateRoute path="/createProducts" component={CreateProducts} />
+          <PrivateRoute path="/editProduct/:id" component={EditProducts} />
+        </Switch>
+      </div>
+    </Router>
+  );
 }
 
-export default App; // export
+export default App;

@@ -3,12 +3,9 @@ const app = express()
 const port = 4000
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
-const cors = require('cors'); // Add this line
 
 // determine path and work out build folder
 // serve the static files from the React app
-app.use(cors());
-
 const path = require('path');
 app.use(express.static(path.join(__dirname, '../build')));
 app.use('/static', express.static(path.join(__dirname, 'build//static')));
@@ -29,9 +26,9 @@ const Schema = mongoose.Schema;
 var productSchema = new Schema({
     name: String,
     qty: String,
-    image: String,
-    comment: String // New field for comment
+    image: String
 });
+
 // create model for database for interaction
 var ProductModel = mongoose.model("product", productSchema)
 
@@ -62,19 +59,17 @@ app.get('/api/products/:id', (req, res) => {
 
 // post request to create new product
 app.post('/api/products', (req, res) => {
+
+    // interact to create
     ProductModel.create({
         name: req.body.name,
         qty: req.body.qty,
-        image: req.body.image,
-        comment: req.body.comment // Save the received comment
+        image: req.body.image
     })
-    .then(() => {
-        res.send('Product Added'); // Send success message
-    })
-    .catch((err) => {
-        res.status(500).send(err); // Send error response if any
-    });
-});
+
+    // server to client to prevent duplicate creation
+    res.send('Product Added');
+})
 
 // update product with specific id
 app.put('/api/products/:id', (req, res) => {
@@ -108,5 +103,5 @@ app.get('*', (req,res) =>{
 
 // listen from port
 app.listen(port, () => {
-    console.log(`Server is running  ${port}`)
+    console.log(`Example app listening at http://localhost:${port}`)
 })
