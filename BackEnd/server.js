@@ -3,6 +3,13 @@ const app = express()
 const port = 4000
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+
+
+app.use(cors());
 
 // determine path and work out build folder
 // serve the static files from the React app
@@ -95,13 +102,15 @@ app.delete('/api/products/:id', (req, res) => {
         })
 })
 
+
 // handles any requests that don't match the ones above
 // send html file from build folder
 app.get('*', (req,res) =>{
     res.sendFile(path.join(__dirname+'/../build/index.html'));
 });    
 
-// listen from port
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
-})
+// Start the server
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
-const FormDataSchema = new mongoose.Schema({
+const UserDataSchema = new mongoose.Schema({
     name : String,
     email: String,
     password: String
 })
 
-const FormDataModel = mongoose.model('log_reg_form', FormDataSchema);
+const FormDataModel = mongoose.model('log_reg_form', UserDataSchema);
 
 module.exports = FormDataModel;

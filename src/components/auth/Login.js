@@ -1,35 +1,35 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 
-const Login = ({ setAuthenticated }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+const Login = () => {
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
     const history = useHistory(); // Use useHistory for navigation
 
     const handleSubmit = (event) => {
         event.preventDefault();
-
+        
         axios.post('http://localhost:4000/login', { email, password })
             .then(result => {
                 console.log(result);
                 if (result.data.token) {
-                    localStorage.setItem('token', result.data.token);
+                    localStorage.setItem('token', result.data.token); // Store the token in local storage
                     alert('Login successful!');
-                    setAuthenticated(true); // Update the authenticated state
                     history.push('/readProducts');
                 } else if (result.data === 'Success') {
                     console.log('Login Success');
                     alert('Login successful!');
-                    setAuthenticated(true); // Update the authenticated state
                     history.push('/readProducts');
                 } else {
                     alert('Incorrect password! Please try again.');
                 }
             })
             .catch(err => console.log(err));
-    };
+    }
+
 
     return (
         <div>
