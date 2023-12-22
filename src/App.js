@@ -15,6 +15,7 @@ import ReadProducts from './components/readProducts'; // Make sure the path is c
 import CreateProducts from './components/createProducts'; // Ensure correct path and casing
 import EditProducts from './components/editProducts';
 import NewsPage from './components/newsPage'; // Import the NewsPage component
+import Dashboard from './components/dashboard';
 
 class App extends Component {
   state = {
@@ -51,6 +52,8 @@ class App extends Component {
                 <Nav.Link href="/news">News</Nav.Link>
                 <Nav.Link href="/readProducts">Product List</Nav.Link>
                 <Nav.Link href="/createProducts">Add Product</Nav.Link>
+                <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+
 
               </Nav>
             </Container>
@@ -61,6 +64,8 @@ class App extends Component {
             <Route path="/readProducts" component={ReadProducts} />
             <Route path="/createProducts" component={CreateProducts} />
             <Route path="/edit/:id" component={EditProducts} />
+            <Route path="/dashboard" component={Dashboard} /> {/* Add this line for Dashboard */}
+
           </Switch>
         </div>
       </Router>

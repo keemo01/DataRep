@@ -1,159 +1,126 @@
-const express = require('express')
-const app = express()
-const port = 4000
-const bodyParser = require('body-parser')
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
-//const bcrypt = require('bcryptjs');
+const path = require('path');
+const axios = require('axios');
 const jwt = require('jsonwebtoken');
 
-
-
 app.use(cors());
-
-// determine path and work out build folder
-// serve the static files from the React app
-const path = require('path');
 app.use(express.static(path.join(__dirname, '../build')));
 app.use('/static', express.static(path.join(__dirname, 'build//static')));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-
-// parse appplication/json
-app.use(bodyParser.json())
-
-// connect to mongodb
-const myConnectionString = 'mongodb+srv://g00366442:Ajstar11@cluster0.fc4rsgr.mongodb.net/?retryWrites=true&w=majority';
+// MongoDB Connection
+const myConnectionString = 'YOUR_MONGO_DB_CONNECTION_STRING';
 mongoose.connect(myConnectionString, { useNewUrlParser: true });
 
-// schema for database
+// Schema & Model Definitions
 const Schema = mongoose.Schema;
 
-var productSchema = new Schema({
+const productSchema = new Schema({
     name: String,
     qty: String,
     image: String
 });
-
-// create model for database for interaction
-var ProductModel = mongoose.model("product", productSchema)
-
-// get request from url, in this case '/' = home page/domain
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
-
-// get request from /api/products and response with product json
-app.get('/api/products', (req, res) => {
-
-    // find doc in database
-    ProductModel.find((err, data) => {
-        res.json(data);
-    })
-
-})
-
-// returns data (products) in that id
-app.get('/api/products/:id', (req, res) => {
-
-    // interaction to get data
-    ProductModel.findById(req.params.id, (err, data) => {
-        // send data from database
-        res.json(data);
-    })
-})
-
-// post request to create new product
-app.post('/api/products', (req, res) => {
-
-    // interact to create
-    ProductModel.create({
-        name: req.body.name,
-        qty: req.body.qty,
-        image: req.body.image
-    })
-
-    // server to client to prevent duplicate creation
-    res.send('Product Added');
-})
-
-// update product with specific id
-app.put('/api/products/:id', (req, res) => {
-
-    // find product with that id and update from database
-    ProductModel.findByIdAndUpdate(req.params.id, req.body, { new: true },
-        (err, data) => {
-            res.send(data)
-        })
-})
-
-// listen from http (/api/products/:id) that has delete method
-app.delete('/api/products/:id', (req, res) => {
-
-    // delete record with that specific id (id associated with delete button)
-    ProductModel.deleteOne({ _id: req.params.id },
-        (error, data) => {
-            if (error) {
-                res.send(error);
-            } else {
-                res.send(data);
-            }
-        })
-})
-
-
-// handles any requests that don't match the ones above
-// send html file from build folder
-app.get('*', (req,res) =>{
-    res.sendFile(path.join(__dirname+'/../build/index.html'));
-});    
+const ProductModel = mongoose.model("product", productSchema);
 
 const newsSchema = new Schema({
     title: String,
     description: String,
     // Add other fields as needed: image, author, content, etc.
 });
-
 const NewsModel = mongoose.model('News', newsSchema);
 
+// Routes
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
 
+// Products
+app.get('/api/products', (req, res) => {
+    ProductModel.find((err, data) => {
+        res.json(data);
+    });
+});
 
-app.get('/api/news', (req, res) => {
-    axios.get('https://newsapi.org/v2/top-headlines', {
-        params: {
-            country: 'us',
-            apiKey: '7e07333e33234db8ac28e319fd52cdd4',
-        },
-    })
-    .then((response) => {
-        const articles = response.data.articles;
-        res.json(articles);
-    })
-    .catch((error) => {
-        console.error('Error fetching news:', error);
-        res.status(500).json({ error: 'Failed to fetch news' });
+// Modify the route to return the count of products
+app.get('/api/products/count', (req, res) => {
+    ProductModel.countDocuments({}, (err, count) => {
+        if (err) {
+            res.status(500).json({ error: 'Failed to get product count' });
+        } else {
+            res.json({ count });
+        }
     });
 });
 
 
+app.get('/api/products/:id', (req, res) => {
+    ProductModel.findById(req.params.id, (err, data) => {
+        res.json(data);
+    });
+});
+
+app.post('/api/products', (req, res) => {
+    ProductModel.create({
+        name: req.body.name,
+        qty: req.body.qty,
+        image: req.body.image
+    });
+    res.send('Product Added');
+});
+
+app.put('/api/products/:id', (req, res) => {
+    ProductModel.findByIdAndUpdate(req.params.id, req.body, { new: true },
+        (err, data) => {
+            res.send(data);
+        });
+});
+
+app.delete('/api/products/:id', (req, res) => {
+    ProductModel.deleteOne({ _id: req.params.id }, (error, data) => {
+        if (error) {
+            res.send(error);
+        } else {
+            res.send(data);
+        }
+    });
+});
+
+// News
+app.get('/api/news', async (req, res) => {
+    try {
+        const response = await axios.get('https://newsapi.org/v2/top-headlines', {
+            params: {
+                country: 'us',
+                apiKey: 'YOUR_NEWS_API_KEY',
+            },
+        });
+        const articles = response.data.articles;
+        res.json(articles);
+    } catch (error) {
+        console.error('Error fetching news:', error);
+        res.status(500).json({ error: 'Failed to fetch news' });
+    }
+});
+
 app.post('/api/news/save', async (req, res) => {
     try {
-      const { title, description, /* other fields */ } = req.body;
-  
-      // Create a new news article using the NewsModel and save it to the database
-      const newArticle = new NewsModel({
-        title,
-        description,
-        // Assign other fields accordingly
-      });
-      await newArticle.save();
-  
-      res.status(201).json({ message: 'Article saved successfully' });
+        const { title, description, /* other fields */ } = req.body;
+        const newArticle = new NewsModel({
+            title,
+            description,
+            // Assign other fields accordingly
+        });
+        await newArticle.save();
+        res.status(201).json({ message: 'Article saved successfully' });
     } catch (error) {
-      res.status(500).json({ error: 'Failed to save article' });
+        res.status(500).json({ error: 'Failed to save article' });
     }
-  });
+});
 
 app.get('/api/saved-articles', async (req, res) => {
     try {
@@ -165,9 +132,58 @@ app.get('/api/saved-articles', async (req, res) => {
     }
 });
 
+// Express Backend - User Registration
+app.post('/api/register', async (req, res) => {
+    try {
+        // Extract user data from request body
+        const { username, email, password } = req.body;
 
-// Start the server
+        // Check if the user already exists in the database
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        // Create a new user and save to the database
+        const newUser = new User({ username, email, password });
+        await newUser.save();
+
+        // Return success message or token for further authentication
+        res.status(201).json({ message: 'User registered successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Registration failed' });
+    }
+});
+
+// Express Backend - User Login
+app.post('/api/login', async (req, res) => {
+    try {
+        // Extract login credentials from request body
+        const { email, password } = req.body;
+
+        // Check if the user exists in the database
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Validate password
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+            return res.status(401).json({ message: 'Invalid password' });
+        }
+
+        // Create and assign a token (or session) for user authentication
+        const token = jwt.sign({ _id: user._id }, 'your_secret_key_here');
+        res.header('auth-token', token).json({ token });
+    } catch (error) {
+        res.status(500).json({ message: 'Login failed' });
+    }
+});
+
+
+// Server Setup
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
