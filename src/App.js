@@ -10,11 +10,11 @@ import {
   Switch,
   Route,
 } from 'react-router-dom';
+import axios from 'axios';
 import ReadProducts from './components/readProducts'; // Make sure the path is correct
 import CreateProducts from './components/createProducts'; // Ensure correct path and casing
 import EditProducts from './components/editProducts';
 import NewsPage from './components/newsPage'; // Import the NewsPage component
-import axios from 'axios';
 
 class App extends Component {
   state = {
@@ -25,7 +25,7 @@ class App extends Component {
     axios.get('https://newsapi.org/v2/top-headlines', {
       params: {
         country: 'us',
-        apiKey: 'YOUR_NEWS_API_KEY',
+        apiKey: '7e07333e33234db8ac28e319fd52cdd4',
       },
     })
     .then((response) => {
@@ -51,6 +51,7 @@ class App extends Component {
                 <Nav.Link href="/news">News</Nav.Link>
                 <Nav.Link href="/readProducts">Product List</Nav.Link>
                 <Nav.Link href="/createProducts">Add Product</Nav.Link>
+
               </Nav>
             </Container>
           </Navbar>

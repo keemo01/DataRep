@@ -4,7 +4,7 @@ const port = 4000
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
+//const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 
@@ -108,6 +108,63 @@ app.delete('/api/products/:id', (req, res) => {
 app.get('*', (req,res) =>{
     res.sendFile(path.join(__dirname+'/../build/index.html'));
 });    
+
+const newsSchema = new Schema({
+    title: String,
+    description: String,
+    // Add other fields as needed: image, author, content, etc.
+});
+
+const NewsModel = mongoose.model('News', newsSchema);
+
+
+
+app.get('/api/news', (req, res) => {
+    axios.get('https://newsapi.org/v2/top-headlines', {
+        params: {
+            country: 'us',
+            apiKey: '7e07333e33234db8ac28e319fd52cdd4',
+        },
+    })
+    .then((response) => {
+        const articles = response.data.articles;
+        res.json(articles);
+    })
+    .catch((error) => {
+        console.error('Error fetching news:', error);
+        res.status(500).json({ error: 'Failed to fetch news' });
+    });
+});
+
+
+app.post('/api/news/save', async (req, res) => {
+    try {
+      const { title, description, /* other fields */ } = req.body;
+  
+      // Create a new news article using the NewsModel and save it to the database
+      const newArticle = new NewsModel({
+        title,
+        description,
+        // Assign other fields accordingly
+      });
+      await newArticle.save();
+  
+      res.status(201).json({ message: 'Article saved successfully' });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to save article' });
+    }
+  });
+
+app.get('/api/saved-articles', async (req, res) => {
+    try {
+        const savedArticles = await NewsModel.find();
+        res.json(savedArticles);
+    } catch (error) {
+        console.error('Error fetching saved articles:', error);
+        res.status(500).json({ error: 'Failed to fetch saved articles' });
+    }
+});
+
 
 // Start the server
 const PORT = process.env.PORT || 4000;
