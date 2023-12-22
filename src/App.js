@@ -47,18 +47,17 @@ const App = () => {
   return (
     <Router>
     <div className="App">
-        <Navbar bg="dark" variant="dark">
-          <Container>
-            <Navbar.Brand href="/">Al Jabarah</Navbar.Brand>
-            <Nav>
-              <Nav.Link href="/">Home</Nav.Link>
-              {authenticated && <Nav.Link href="/readProducts">Product List</Nav.Link>}
-              {authenticated && <Nav.Link href="/createProducts">Add Product</Nav.Link>}
-              {authenticated && <Nav.Link onClick={handleLogout}>Logout</Nav.Link>}
-
-            </Nav>
-          </Container>
-        </Navbar>
+    <Navbar bg="dark" variant="dark">
+            <Container>
+        <Navbar.Brand href="/">Al Jabarah</Navbar.Brand>
+                  <Nav>
+                            {!authenticated && <Nav.Link href="/">Home</Nav.Link>}
+                            {authenticated && <Nav.Link href="/readProducts">Product List</Nav.Link>}
+                            {authenticated && <Nav.Link href="/createProducts">Add Product</Nav.Link>}
+                            {authenticated && <Nav.Link onClick={handleLogout}>Logout</Nav.Link>}
+                        </Nav>
+                    </Container>
+                </Navbar>
         <Switch>
         <Route path="/login">
                 <Login setAuthenticated={setAuthenticated} />
