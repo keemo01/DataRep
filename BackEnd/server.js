@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // MongoDB Connection
-const myConnectionString = 'YOUR_MONGO_DB_CONNECTION_STRING';
+const myConnectionString = 'mongodb+srv://g00366442:Ajstar11@cluster0.fc4rsgr.mongodb.net/?retryWrites=true&w=majority';
 mongoose.connect(myConnectionString, { useNewUrlParser: true });
 
 // Schema & Model Definitions
@@ -46,16 +46,6 @@ app.get('/api/products', (req, res) => {
     });
 });
 
-// Modify the route to return the count of products
-app.get('/api/products/count', (req, res) => {
-    ProductModel.countDocuments({}, (err, count) => {
-        if (err) {
-            res.status(500).json({ error: 'Failed to get product count' });
-        } else {
-            res.json({ count });
-        }
-    });
-});
 
 
 app.get('/api/products/:id', (req, res) => {
@@ -131,56 +121,6 @@ app.get('/api/saved-articles', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch saved articles' });
     }
 });
-
-// Express Backend - User Registration
-app.post('/api/register', async (req, res) => {
-    try {
-        // Extract user data from request body
-        const { username, email, password } = req.body;
-
-        // Check if the user already exists in the database
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-
-        // Create a new user and save to the database
-        const newUser = new User({ username, email, password });
-        await newUser.save();
-
-        // Return success message or token for further authentication
-        res.status(201).json({ message: 'User registered successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Registration failed' });
-    }
-});
-
-// Express Backend - User Login
-app.post('/api/login', async (req, res) => {
-    try {
-        // Extract login credentials from request body
-        const { email, password } = req.body;
-
-        // Check if the user exists in the database
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Validate password
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.status(401).json({ message: 'Invalid password' });
-        }
-
-        // Create and assign a token (or session) for user authentication
-        const token = jwt.sign({ _id: user._id }, 'your_secret_key_here');
-        res.header('auth-token', token).json({ token });
-    } catch (error) {
-        res.status(500).json({ message: 'Login failed' });
-    }
-});
-
 
 // Server Setup
 const PORT = process.env.PORT || 4000;
